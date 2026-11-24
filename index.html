@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
+  <title>祈福卡申請說明</title>
+  <!-- 引入 LINE LIFF SDK -->
+  <script charset="utf-8" src="https://line-scdn.net"></script>
+  <style>
+    :root {
+      --bg-color: #FAF6EE;       /* 溫暖米白底色 */
+      --card-bg: #FFFFFF;
+      --primary-brown: #5C3A18;  /* 深棕色主標題 */
+      --accent-gold: #D49B35;    /* 蓮花金邊色 */
+      --text-main: #2D241C;
+      --text-sub: #66584C;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding-bottom: 95px;
+      line-height: 1.6;
+    }
+
+    /* 1. 頂部第一張總覽海報 */
+    .hero-poster {
+      width: 100%;
+      display: block;
+      border-bottom: 3px solid var(--accent-gold);
+    }
+
+    /* 區塊標題 */
+    .section-header {
+      text-align: center;
+      padding: 24px 16px 8px;
+    }
+    .section-header h2 {
+      color: var(--primary-brown);
+      font-size: 22px;
+      letter-spacing: 1px;
+    }
+    .section-header p {
+      font-size: 15px;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    /* 2. 橫向滑動卡片區 */
+    .carousel-container {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 14px;
+      padding: 12px 20px 14px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .carousel-container::-webkit-scrollbar { display: none; }
+
+    .pray-card {
+      flex: 0 0 85%;
+      scroll-snap-align: center;
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 2px solid #E8D7B9;
+      box-shadow: 0 4px 12px rgba(92, 58, 24, 0.08);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-badge {
+      display: inline-block;
+      background: #F5E6C8;
+      color: var(--primary-brown);
+      font-size: 13px;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+      align-self: flex-start;
+    }
+
+    .card-title {
+      font-size: 22px;
+      color: var(--primary-brown);
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 16px;
+      color: #8C4A27;
+      font-weight: 500;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed #E0CFAF;
+      margin-bottom: 12px;
+    }
+
+    .info-label {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+
+    .homework-list {
+      list-style: none;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+    .homework-list li {
+      margin-bottom: 8px;
+      padding-left: 26px;
+      position: relative;
+    }
+    .homework-list li span {
+      position: absolute;
+      left: 0;
+      top: 3px;
+      width: 19px;
+      height: 19px;
+      background: var(--accent-gold);
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .dedication-box {
+      background: #FAF5EB;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--primary-brown);
+    }
+
+    /* 滑動指示小圓點 */
+    .dots-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #DFCDAE;
+      transition: all 0.3s;
+    }
+    .dot.active {
+      width: 20px;
+      border-radius: 4px;
+      background: var(--accent-gold);
+    }
+
+    /* 備用：查看原圖按鈕區 */
+    .raw-images-bar {
+      text-align: center;
+      padding: 0 16px 20px;
+    }
+    .btn-outline {
+      background: #FFFFFF;
+      border: 1px solid var(--primary-brown);
+      color: var(--primary-brown);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    /* 3. 底部固定行動按鈕 */
+    .sticky-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.96);
+      padding: 12px 20px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+      z-index: 100;
+    }
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #D98A2B, #B86B14);
+      color: white;
+      border: none;
+      padding: 15px;
+      font-size: 19px;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 10px rgba(184, 107, 20, 0.3);
+    }
+
+    /* 全螢幕看原圖燈箱 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.92);
+      z-index: 999;
+      overflow: auto;
+      padding: 55px 10px 20px;
+    }
+    .modal img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    .modal-close {
+      position: fixed;
+      top: 14px; right: 14px;
+      background: white;
+      color: black;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: bold;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 第一張海報：總覽與申請步驟 (請確認檔名與副檔名正確) -->
+  <img src="poster1.jpg" alt="祈福卡申請說明" class="hero-poster">
+
+  <!-- 卡片說明區 -->
+  <div class="section-header">
+    <h2>各項卡片功課說明</h2>
+    <p>👈 左右滑動查看 6 種祈福卡內容 👉</p>
+  </div>
+
+  <div class="carousel-container" id="cardCarousel">
+    <!-- 卡片 1 -->
+    <div class="pray-card">
+      <div>
+        <span class="card-badge">常態申請</span>
+        <div class="card-title">事業加持卡</div>
+        <div class="card-desc">祈求事業順利、工作穩定發展</div>
+        <div class="info-label">📿 功課（擇一迴向）：</div>
+        <ul class="homework-list">
+          <li><span>1</span>地藏聖號 1,080 遍</li>
+          <li><span>2</span>地藏經 一部</li>
+          <li><span>3</span>大悲咒 7 遍</li>
+        </ul>
+      </div>
+      <div class="dedication-box">
+        <strong>🙏 迴向對象：</strong><br>功課擇一迴向給祈福對象的冤親債主
+      </div>
+    </div>
+
+    <!-- 卡片 2 -->
+    <div class="pray-card">
+      <div>
+        <span class="card-badge">常態申請</span>
+        <div class="card-title">金榜題名卡（考生加持卡）</div>
+        <div class="card-desc">祈求考試順利、金榜題名</div>
+        <div class="info-label">📿 功課（擇一迴向）：</div>
+        <ul class="homework-list">
+          <li><span>1</span>地藏聖號 1,080 遍</li>
+          <li><span>2</span>地藏經 一部</li>
+          <li><span>3</span>大悲咒 7 遍</li>
+        </ul>
+      </div>
+      <div class="dedication-box">
+        <strong>🙏 迴向對象：</strong><br>功課擇一迴向給祈福對象的冤親債主
+      </div>
+    </div>
+
+    <!-- 卡片 3 -->
+    <div class="pray-card">
+      <div>
+        <span class="card-badge">常態申請</span>
+        <div class="card-title">生日祈福卡（壽星卡）</div>
+        <div class="card-desc">每月農曆壽星祈福、感念父母恩</div>
+        <div class="info-label">📿 功課（擇一迴向）：</div>
+        <ul class="homework-list">
+          <li><span>1</span>地藏聖號 1,080 遍</li>
+          <li><span>2</span>地藏經 一部</li>
+          <li><span>3</span>大悲咒 7 遍</li>
+          <li><span>4</span>報父母恩咒 1,080 遍</li>
+        </ul>
+      </div>
+      <div class="dedication-box">
+        <strong>🙏 迴向對象：</strong><br>功課擇一迴向給祈福對象的父母
+      </div>
+    </div>
+
+    <!-- 卡片 4 -->
+    <div class="pray-card">
+      <div>
+        <span class="card-badge">常態申請</span>
+        <div class="card-title">藥師佛平安健康卡</div>
+        <div class="card-desc">祈求身體健康、平安吉祥</div>
+        <div class="info-label">📿 功課（擇一迴向）：</div>
+        <ul class="homework-list">
+          <li><span>1</span>地藏聖號 1,080 遍</li>
+          <li><span>2</span>地藏經 一部</li>
+          <li><span>3</span>大悲咒 7 遍</li>
+          <li><span>4</span>心經 1 部</li>
+          <li><span>5</span>南無藥師琉璃光如來聖號（或南無消災延壽藥師佛聖號）1,080 遍</li>
+          <li><span>6</span>藥師經 一部</li>
+          <li><span>7</span>藥師灌頂真言 108 遍</li>
+        </ul>
+      </div>
+      <div class="dedication-box">
+        <strong>🙏 迴向對象：</strong><br>功課擇一迴向給祈福對象的冤親債主
+      </div>
+    </div>
+
+    <!-- 卡片 5 -->
+    <div class="pray-card">
+      <div>
+        <span class="card-badge">常態申請</span>
+        <div class="card-title">故亡親友祈福卡</div>
+        <div class="card-desc">為故亡親友祈福、超薦往生</div>
+        <div class="info-label">📿 功課（擇一迴向）：</div>
+        <ul class="homework-list">
+          <li><span>1</span>地藏聖號 1,080 遍</li>
+          <li><span>2</span>地藏經 一部</li>
+          <li><span>3</span>大悲咒 7 遍</li>
+        </ul>
+      </div>
+      <div class="dedication-box">
+        <strong>🙏 迴向對象：</strong><br>功課擇一迴向給故亡祈福對象
+      </div>
+    </div>
+
+    <!-- 卡片 6 -->
+    <div class="pray-card">
+      <div>
+        <span class="card-badge">常態申請</span>
+        <div class="card-title">地藏王菩薩業障減輕加持卡</div>
+        <div class="card-desc">祈求全球疫情、台灣地震、災難減輕化小化無</div>
+        <div class="info-label">📿 功課：</div>
+        <ul class="homework-list">
+          <li><span>1</span>滅定業真言 1,000 遍/天（代親友持誦申請 108 遍）<br>【自行決定功課期間】</li>
+        </ul>
+      </div>
+      <div class="dedication-box">
+        <strong>🙏 迴向對象：</strong><br>請「自行迴向」或「交給當家師父迴向」全球疫情、台灣地震、災難減輕化小化無
+      </div>
+    </div>
+  </div>
+
+  <!-- 頁碼指示圓點 -->
+  <div class="dots-indicator" id="dotsContainer">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+
+  <!-- 備用：檢視原始海報大圖 -->
+  <div class="raw-images-bar">
+    <button class="btn-outline" onclick="openModal('poster2.jpg')">🔍 查看原始表格海報 1</button>
+    <button class="btn-outline" onclick="openModal('poster3.jpg')">🔍 查看原始表格海報 2</button>
+  </div>
+
+  <!-- 底部固定申請按鈕 -->
+  <div class="sticky-footer">
+    <button class="btn-primary" onclick="goToApply()">立即製作祈福卡</button>
+  </div>
+
+  <!-- 燈箱 Modal -->
+  <div id="imageModal" class="modal" onclick="closeModal()">
+    <button class="modal-close">✕ 關閉</button>
